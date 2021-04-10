@@ -1,5 +1,5 @@
 # TFBT.BoostedTree
-A gradient boosting classifier based on the [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933).
+A [gradient boosting](TFBT.py) classifier based on the [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933).
 <br/>
 A novel estimator based on the [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933) and Sklearn standard.
 This model, unlike the TF method, has fit and score methods. Therefore, one can implement [gridsearchCV](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) or [pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) as well.
