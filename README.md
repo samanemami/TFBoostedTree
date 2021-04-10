@@ -72,5 +72,6 @@ development branch.
 
 # Version 
 1.1.1
+<br/>
 In the latest update, there is no need to convert data to pandas DataFrame, also, the model will extract the features as well.
 Moreover, the predict_proba method has been added.
