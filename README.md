@@ -29,12 +29,6 @@ import sklearn.datasets as dts
 from sklearn.model_selection import train_test_split
 
 X, y = dts.load_wine(return_X_y=True)
-iris = dts.load_wine()
-df = pd.DataFrame(data=np.c_[iris['data'], iris['target']],
-                  columns=iris['feature_names'] + ['target'])
-feature = iris.feature_names
-X = df.iloc[:, :-1]
-y = df.iloc[:, -1]
 
 x_train, x_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=2)
@@ -42,6 +36,7 @@ x_train, x_test, y_train, y_test = train_test_split(
 model = model = TFBT(learning_rate=1, features=feature, max_depth=2)
 model.fit(x_train, y_train)
 model.score(x_test, y_test)
+model.predict_proba(x_test, y_test)
 ```
 
 One could also implement GridsearchCV to tune the hyper-parameters
@@ -54,12 +49,6 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 model = model = TFBT(learning_rate=1, features=feature, max_depth=2)
 
 X, y = dts.load_wine(return_X_y=True)
-iris = dts.load_wine()
-df = pd.DataFrame(data=np.c_[iris['data'], iris['target']],
-                  columns=iris['feature_names'] + ['target'])
-feature = iris.feature_names
-X = df.iloc[:, :-1]
-y = df.iloc[:, -1]
 
 x_train, x_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=2)
@@ -70,6 +59,7 @@ param = {"max_depth": [1, 2, 5, 10, 20],
 grid = GridSearchCV(model, param)
 grid.fit(x_train, y_train)
 grid.score(x_test, y_test)
+
 ```
 
 # Contributions
@@ -81,4 +71,6 @@ development branch.
 **`Boosted_tree`**, **`tensorflow`**
 
 # Version 
-1.0.0
+1.1.1
+In the latest update, there is no need to convert data to pandas DataFrame, also, the model will extract the features as well.
+Moreover, the predict_proba method has been added.
