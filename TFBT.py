@@ -1,33 +1,43 @@
 """ Gradient Boosted Tree"""
 
-# Author: Seyedsaman Emami 
+# Author: Seyedsaman Emami
 
 # Licence: GNU Lesser General Public License v2.1 (LGPL-2.1)
 
-
-
+import sklearn.datasets as dts
+import time
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
 class TFBT(BaseEstimator, ClassifierMixin):
+
+    '''
+    This model is based on Sklearn standards. 
+    Therefore, it contains fit, score, and 
+    predict probe. 
+    I developed this class to implement the 
+    GridsearchCV and pipeline.
+
+    '''
+
     def __init__(self, *,
                  n_batches_per_layer=1,
                  label_vocabulary=None,
                  n_trees=1,
                  max_depth=5,
                  learning_rate=0.1,
-                 features=None,
                  step=100):
         self.n_batches_per_layer = n_batches_per_layer
         self.label_vocabulary = label_vocabulary
         self.n_trees = n_trees
         self.max_depth = max_depth
         self.learning_rate = learning_rate
-        self.features = features
         self.step = step
-        
+
         '''
     Parameters
     -----------------
@@ -36,20 +46,35 @@ class TFBT(BaseEstimator, ClassifierMixin):
 
     label_vocabulary: if the labels are string,
             then add the label vector in string.
-            
+
     n_trees: number of trees in model.
-    
+
     max_depth: depth of tree.
-    
+
     learning_rate: shrinkage parameter to be 
             used when a tree added to the
             model.
-            
+
     features: Vector of features in String.
-    
+
     step: Number of boosting iterations.
-    
+
     '''
+
+    def _dataframe(self, X, y):
+        X = pd.DataFrame(X)
+        y = pd.DataFrame(y)
+        X = X.astype("int64")
+        y = y.astype(str) if (self.label_vocabulary) else y.astype("int64")
+
+        self.feature = []
+        for i in range(len(X.columns)):
+            self.feature.append(str(i))
+
+        col_rename = {i: j for i, j in zip(X.columns, self.feature)}
+        X = X.rename(columns=col_rename, inplace=False)
+
+        return X, y
 
     def _make_input_fn(self, X, y, n_epochs=None, shuffle=True):
         def input_fn():
@@ -70,31 +95,23 @@ class TFBT(BaseEstimator, ClassifierMixin):
         return (array[0, 1]).astype(np.float64)
 
     def fit(self, X, y):
-      
-      """Run fit with all sets of parameters.
-      
+        """Run fit with all sets of parameters.
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
-            
+
         y : array-like of shape (n_samples,) 
-        
+
         """
 
-        X = X.astype("int64")
-
-        if self.label_vocabulary is None:
-            y = y.astype("int64")
-        else:
-            y = y.astype(str)
-
-        # NUM_EXAMPLES = len(y)
+        X, y = self._dataframe(X, y)
 
         # Training and evaluation input functions.
         train_input_fn = self._make_input_fn(X, y)
 
         # feature selection
-        num_columns = self.features
+        num_columns = self.feature
         feature_columns = []
         n_classes = len(np.unique(y))
 
@@ -113,25 +130,18 @@ class TFBT(BaseEstimator, ClassifierMixin):
         return self
 
     def score(self, X, y):
-      
-      """Returns the score on the given data
+        """Returns the score on the given data
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
-           
+
         y : array-like of shape (n_samples)
-        
+
         Returns
         -------
         score : float
         """
-
-        X = X.astype("int64")
-
-        if self.label_vocabulary is None:
-            y = y.astype("int64")
-        else:
-            y = y.astype(str)
+        X, y = self._dataframe(X, y)
 
         eval_input_fn = self._make_input_fn(X, y,
                                             shuffle=False,
@@ -139,3 +149,13 @@ class TFBT(BaseEstimator, ClassifierMixin):
 
         return self._accuracy(self.est.evaluate
                               (eval_input_fn, steps=1))
+
+    def predict_proba(self, X, y):
+        X, y = self._dataframe(X, y)
+        eval_input_fn = self._make_input_fn(X, y,
+                                            shuffle=False,
+                                            n_epochs=1)
+        pred_dicts = list(self.est.predict(eval_input_fn))
+
+        return pd.Series([pred['probabilities']
+                          for pred in pred_dicts])
