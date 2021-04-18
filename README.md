@@ -71,7 +71,8 @@ development branch.
 **`Boosted_tree`**, **`tensorflow`**
 
 # Version 
-1.1.1
+1.1.2
 <br/>
 In the latest update, there is no need to convert data to pandas DataFrame, also, the model will extract the features as well.
 Moreover, the predict_proba method has been added.
+Moreover, by adding the path to the `model_dir` you can increase your disk space and reduce memory usage.
