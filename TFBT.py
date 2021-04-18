@@ -4,12 +4,13 @@
 
 # Licence: GNU Lesser General Public License v2.1 (LGPL-2.1)
 
-import os
+
 import glob
 import time
 import shutil
 import numpy as np
 import pandas as pd
+import os, re, os.path
 import tensorflow as tf
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -22,7 +23,8 @@ class TFBT(BaseEstimator, ClassifierMixin):
     Therefore, it contains fit, score, and 
     predict probe. 
     I developed this class to implement the 
-    GridsearchCV and pipeline.
+    GridsearchCV and pipeline over TensorFlow 
+    Boosted tree.
 
     '''
 
@@ -62,6 +64,12 @@ class TFBT(BaseEstimator, ClassifierMixin):
     features: Vector of features in String.
 
     step: Number of boosting iterations.
+
+    model_dir: If (model_dir), then at each training 
+    iteration, the algorithm will empty the checkpoint_path. 
+    This will increase your disk space during the training process.
+    If you have memory limitations, use a path.
+
 
     '''
 
@@ -133,8 +141,9 @@ class TFBT(BaseEstimator, ClassifierMixin):
 
         self.est.train(train_input_fn, max_steps=self.step)
         if (self.model_dir):
-            shutil.rmtree(self.model_dir)
-            os.makedirs(self.model_dir)
+            for root, dirs, files in os.walk(self.model_dir):
+                for file in files:
+                    os.remove(os.path.join(root, file))
 
         return self
 
