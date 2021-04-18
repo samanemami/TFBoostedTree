@@ -10,7 +10,9 @@ import time
 import shutil
 import numpy as np
 import pandas as pd
-import os, re, os.path
+import os
+import re
+import os.path
 import tensorflow as tf
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -23,8 +25,7 @@ class TFBT(BaseEstimator, ClassifierMixin):
     Therefore, it contains fit, score, and 
     predict probe. 
     I developed this class to implement the 
-    GridsearchCV and pipeline over TensorFlow 
-    Boosted tree.
+    GridsearchCV and pipeline.
 
     '''
 
@@ -140,10 +141,6 @@ class TFBT(BaseEstimator, ClassifierMixin):
                                                        model_dir=self.model_dir)
 
         self.est.train(train_input_fn, max_steps=self.step)
-        if (self.model_dir):
-            for root, dirs, files in os.walk(self.model_dir):
-                for file in files:
-                    os.remove(os.path.join(root, file))
 
         return self
 
@@ -165,8 +162,15 @@ class TFBT(BaseEstimator, ClassifierMixin):
                                             shuffle=False,
                                             n_epochs=1)
 
-        return self._accuracy(self.est.evaluate
-                              (eval_input_fn, steps=1))
+        accuracy = self._accuracy(self.est.evaluate
+                                  (eval_input_fn, steps=1))
+                                  
+        if (self.model_dir):
+            for root, dirs, files in os.walk(self.model_dir):
+                for file in files:
+                    os.remove(os.path.join(root, file))
+
+        return accuracy
 
     def predict_proba(self, X, y):
         X, y = self._dataframe(X, y)
