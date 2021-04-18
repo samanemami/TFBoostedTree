@@ -4,8 +4,10 @@
 
 # Licence: GNU Lesser General Public License v2.1 (LGPL-2.1)
 
-import sklearn.datasets as dts
+import os
+import glob
 import time
+import shutil
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -30,13 +32,15 @@ class TFBT(BaseEstimator, ClassifierMixin):
                  n_trees=1,
                  max_depth=5,
                  learning_rate=0.1,
-                 step=100):
+                 step=100,
+                 model_dir=None):
         self.n_batches_per_layer = n_batches_per_layer
         self.label_vocabulary = label_vocabulary
         self.n_trees = n_trees
         self.max_depth = max_depth
         self.learning_rate = learning_rate
         self.step = step
+        self.model_dir = model_dir
 
         '''
     Parameters
@@ -124,8 +128,13 @@ class TFBT(BaseEstimator, ClassifierMixin):
                                                        n_trees=self.n_trees,
                                                        max_depth=self.max_depth,
                                                        learning_rate=self.learning_rate,
-                                                       label_vocabulary=self.label_vocabulary)
+                                                       label_vocabulary=self.label_vocabulary,
+                                                       model_dir=self.model_dir)
+
         self.est.train(train_input_fn, max_steps=self.step)
+        if (self.model_dir):
+            shutil.rmtree(self.model_dir)
+            os.makedirs(self.model_dir)
 
         return self
 
