@@ -5,17 +5,12 @@
 # Licence: GNU Lesser General Public License v2.1 (LGPL-2.1)
 
 
-import glob
-import time
-import shutil
 import numpy as np
 import pandas as pd
 import os
-import re
 import os.path
 import tensorflow as tf
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
 class TFBT(BaseEstimator, ClassifierMixin):
@@ -35,14 +30,16 @@ class TFBT(BaseEstimator, ClassifierMixin):
                  n_trees=1,
                  max_depth=5,
                  learning_rate=0.1,
-                 step=100,
+                 max_step=100,
+                 steps=100,
                  model_dir=None):
         self.n_batches_per_layer = n_batches_per_layer
         self.label_vocabulary = label_vocabulary
         self.n_trees = n_trees
         self.max_depth = max_depth
         self.learning_rate = learning_rate
-        self.step = step
+        self.max_step = max_step
+        self.steps = steps
         self.model_dir = model_dir
 
         '''
@@ -140,7 +137,8 @@ class TFBT(BaseEstimator, ClassifierMixin):
                                                        label_vocabulary=self.label_vocabulary,
                                                        model_dir=self.model_dir)
 
-        self.est.train(train_input_fn, max_steps=self.step)
+        self.est.train(train_input_fn, max_steps=self.max_step,
+                       steps=self.steps)
 
         return self
 
@@ -163,8 +161,9 @@ class TFBT(BaseEstimator, ClassifierMixin):
                                             n_epochs=1)
 
         accuracy = self._accuracy(self.est.evaluate
-                                  (eval_input_fn, steps=1))
-                                  
+                                  (eval_input_fn,
+                                   steps=self.steps))
+
         if (self.model_dir):
             for root, dirs, files in os.walk(self.model_dir):
                 for file in files:
