@@ -249,7 +249,5 @@ class BoostedTreesRegressor(TFBT):
         -------
         score : float or ndarray of floats
         """
-
         output_errors = np.average((y_true - pred) ** 2, axis=0)
-
         return np.sqrt(output_errors)
