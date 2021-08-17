@@ -1,4 +1,4 @@
-# TFBT.BoostedTree
+# TFBT.BoostedTree(Wrapper)
 A [gradient boosting](TFBT.py) classifier based on the [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933).
 <br/>
 A wrapper of the tf.BoostedTree of [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933) based on the Sklearn standard.
