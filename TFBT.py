@@ -104,6 +104,9 @@ class TFBT(BaseEstimator, ClassifierMixin):
         array = np.array(item)
         return (array[0, 1]).astype(np.float64)
 
+
+class BoostedTreesClassifier(TFBT):
+
     def fit(self, X, y):
         """Run fit with all sets of parameters.
 
@@ -137,7 +140,85 @@ class TFBT(BaseEstimator, ClassifierMixin):
                                                        label_vocabulary=self.label_vocabulary,
                                                        model_dir=self.model_dir)
 
-        self.est.train(train_input_fn, max_steps=self.max_step,
+        self.est.train(train_input_fn, max_steps=None,
+                       steps=self.steps)
+
+        return self
+
+    def score(self, X, y):
+        """Returns the score on the given data
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+
+        y : array-like of shape (n_samples)
+
+        Returns
+        -------
+        score : float
+        """
+        X, y = self._dataframe(X, y)
+
+        eval_input_fn = self._make_input_fn(X, y,
+                                            shuffle=False,
+                                            n_epochs=1)
+
+        accuracy = self._accuracy(self.est.evaluate
+                                  (eval_input_fn,
+                                   steps=self.steps))
+
+        if (self.model_dir):
+            for root, dirs, files in os.walk(self.model_dir):
+                for file in files:
+                    os.remove(os.path.join(root, file))
+
+        return accuracy
+
+    def predict_proba(self, X, y):
+        X, y = self._dataframe(X, y)
+        eval_input_fn = self._make_input_fn(X, y,
+                                            shuffle=False,
+                                            n_epochs=1)
+        pred_dicts = list(self.est.predict(eval_input_fn))
+
+        return pd.Series([pred['probabilities']
+                          for pred in pred_dicts])
+
+
+class BoostedTreesRegressor(TFBT):
+
+    def fit(self, X, y):
+        """Run fit with all sets of parameters.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+
+        y : array-like of shape (n_samples,) 
+
+        """
+
+        X, y = self._dataframe(X, y)
+
+        # Training and evaluation input functions.
+        train_input_fn = self._make_input_fn(X, y)
+
+        # feature selection
+        num_columns = self.feature
+        feature_columns = []
+        n_classes = len(np.unique(y))
+
+        for feature_name in num_columns:
+            feature_columns.append(tf.feature_column.numeric_column(feature_name,
+                                                                    dtype=tf.float32))
+        self.est = tf.estimator.BoostedTreesRegressor(feature_columns,
+                                                      n_batches_per_layer=self.n_batches_per_layer,
+                                                      n_trees=self.n_trees,
+                                                      max_depth=self.max_depth,
+                                                      learning_rate=self.learning_rate,
+                                                      model_dir=self.model_dir)
+
+        self.est.train(train_input_fn, max_steps=None,
                        steps=self.steps)
 
         return self
