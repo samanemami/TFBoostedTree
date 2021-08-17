@@ -251,13 +251,3 @@ class BoostedTreesRegressor(TFBT):
                     os.remove(os.path.join(root, file))
 
         return accuracy
-
-    def predict_proba(self, X, y):
-        X, y = self._dataframe(X, y)
-        eval_input_fn = self._make_input_fn(X, y,
-                                            shuffle=False,
-                                            n_epochs=1)
-        pred_dicts = list(self.est.predict(eval_input_fn))
-
-        return pd.Series([pred['probabilities']
-                          for pred in pred_dicts])
