@@ -251,3 +251,15 @@ class BoostedTreesRegressor(TFBT):
                     os.remove(os.path.join(root, file))
 
         return accuracy
+    
+    def predict(self, X, y):
+        X, y = self._dataframe(X, y)
+        eval_input_fn = self._make_input_fn(X, y,
+                                            shuffle=False,
+                                            n_epochs=1)
+        pred_ = [pred['predictions']
+                 for pred in list(self.est.predict(eval_input_fn))]
+        pred = np.zeros_like(y)
+        for i in range(len(pred_)):
+            pred[i, ] = pred_[i][0]
+        return pred
