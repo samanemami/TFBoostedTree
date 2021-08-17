@@ -1,12 +1,12 @@
 # TFBT.BoostedTree
 A [gradient boosting](TFBT.py) classifier based on the [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933).
 <br/>
-A novel estimator based on the [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933) and Sklearn standard.
+A wrapper of the tf.BoostedTree of [tensorflow](https://github.com/tensorflow/estimator/blob/781c0d30c6bf100aa174591dd97cb70fc39d294d/tensorflow_estimator/python/estimator/canned/boosted_trees.py#L1933) based on the Sklearn standard.
 This model, unlike the TF method, has fit and score methods. Therefore, one can implement [gridsearchCV](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) or [pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) as well.
 
 
 # Title
-Compact boosted tree
+TensorFlow Compact Boosted Tree Wrapper
 
 ## Citation 
 If you use this script, please [cite](CITATION.cff) it as below.
@@ -71,8 +71,8 @@ development branch.
 **`Boosted_tree`**, **`tensorflow`**
 
 # Version 
-1.1.2
+1.1.3
 <br/>
 In the latest update, there is no need to convert data to pandas DataFrame, also, the model will extract the features as well.
 Moreover, the predict_proba method has been added.
-Moreover, by adding the path to the `model_dir` you can increase your disk space and reduce memory usage.
+Also, by adding the path to the `model_dir` you can increase your disk space and reduce memory usage. If you set the `model_dir`, the wrapper will delete the saved logs to increase the disk space.
