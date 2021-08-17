@@ -259,7 +259,8 @@ class BoostedTreesRegressor(TFBT):
                                             n_epochs=1)
         pred_ = [pred['predictions']
                  for pred in list(self.est.predict(eval_input_fn))]
-        pred = np.zeros_like(y)
+
+        pred = []
         for i in range(len(pred_)):
-            pred[i, ] = pred_[i][0]
-        return pred
+            pred.append(pred_[i][0])
+        return np.array(pred)
