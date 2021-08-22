@@ -206,7 +206,6 @@ class BoostedTreesRegressor(TFBT):
         # feature selection
         num_columns = self.feature
         feature_columns = []
-        n_classes = len(np.unique(y))
 
         for feature_name in num_columns:
             feature_columns.append(tf.feature_column.numeric_column(feature_name,
@@ -222,7 +221,7 @@ class BoostedTreesRegressor(TFBT):
                        steps=self.steps)
 
         return self
-    
+
     def predict(self, X, y):
         X, y = self._dataframe(X, y)
         eval_input_fn = self._make_input_fn(X, y,
@@ -235,7 +234,7 @@ class BoostedTreesRegressor(TFBT):
         for i in range(len(pred_)):
             pred.append(pred_[i][0])
         return np.array(pred)
-    
+
     def score(self, y_true, pred):
         """Mean squared error regression loss
         ----------
@@ -250,5 +249,5 @@ class BoostedTreesRegressor(TFBT):
         score : float or ndarray of floats
         """
         output_errors = np.average((y_true - pred) ** 2, axis=0)
-        
+
         return np.sqrt(output_errors)
