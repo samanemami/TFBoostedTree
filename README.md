@@ -78,6 +78,8 @@ Moreover, the predict_proba method has been added.
 Also, by adding the path to the `model_dir` you can increase your disk space and reduce memory usage. If you set the `model_dir`, the wrapper will delete the saved logs to increase the disk space.
 
 # Last updates
+
 03.sep.2021
-    * In the last update, as I need the exported models in the wrapper, I added this feature from the TensorFlow library.
-    * If you need more detail about the added method (export_saved_model), check the [reference](https://www.tensorflow.org/api_docs/python/tf/estimator/BoostedTreesClassifier).
+<ul>
+<li>In the last update, as I need the exported models in the wrapper, I added this feature from the TensorFlow library. </li>
+<li>If you need more detail about the added method (export_saved_model), check the [reference](https://www.tensorflow.org/api_docs/python/tf/estimator/BoostedTreesClassifier). </li>
