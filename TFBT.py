@@ -2,7 +2,7 @@
 
 # Author: Seyedsaman Emami
 
-# Licence: GNU Lesser General Public License v2.1 (LGPL-2.1)
+# Licence: GNU Lesser General Public License v2.3 (LGPL-2.1)
 
 
 import numpy as np
@@ -104,6 +104,15 @@ class TFBT(BaseEstimator, ClassifierMixin):
         array = np.array(item)
         return (array[0, 1]).astype(np.float64)
 
+    def serving_input_receiver_fn(self, X):
+        features = []
+        for i in range(X.shape[1]):
+            features.append(tf.feature_column.numeric_column(str(i)))
+        serving_input_receiver_fn = (
+            tf.estimator.export.build_parsing_serving_input_receiver_fn(
+                tf.feature_column.make_parse_example_spec(features)))
+        return serving_input_receiver_fn
+
 
 class BoostedTreesClassifier(TFBT):
 
@@ -138,7 +147,9 @@ class BoostedTreesClassifier(TFBT):
                                                        max_depth=self.max_depth,
                                                        learning_rate=self.learning_rate,
                                                        label_vocabulary=self.label_vocabulary,
-                                                       model_dir=self.model_dir)
+                                                       model_dir=self.model_dir,
+                                                       l1_regularization=1,
+                                                       l2_regularization=1)
 
         self.est.train(train_input_fn, max_steps=None,
                        steps=self.steps)
@@ -183,6 +194,12 @@ class BoostedTreesClassifier(TFBT):
 
         return pd.Series([pred['probabilities']
                           for pred in pred_dicts])
+
+    def export_saved_model(self, path, X):
+        export_dir = self.est.export_saved_model(
+            path, self.serving_input_receiver_fn(X))
+
+        return export_dir
 
 
 class BoostedTreesRegressor(TFBT):
