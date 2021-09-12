@@ -16,11 +16,12 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 class TFBT(BaseEstimator, ClassifierMixin):
 
     '''
-    This model is based on Sklearn standards. 
+    This wrapper is based on Sklearn standards. 
     Therefore, it contains fit, score, and 
     predict probe. 
-    I developed this class to implement the 
-    GridsearchCV and pipeline.
+    I developed this wrapper to take advantage of 
+    different methods from Sklearn, such as GridsearchCV, pipeline,
+    KFold, etc ... .
 
     '''
 
@@ -30,15 +31,15 @@ class TFBT(BaseEstimator, ClassifierMixin):
                  n_trees=1,
                  max_depth=5,
                  learning_rate=0.1,
-                 max_step=100,
-                 steps=100,
+                 max_steps=None,
+                 steps=None,
                  model_dir=None):
         self.n_batches_per_layer = n_batches_per_layer
         self.label_vocabulary = label_vocabulary
         self.n_trees = n_trees
         self.max_depth = max_depth
         self.learning_rate = learning_rate
-        self.max_step = max_step
+        self.max_steps = max_steps
         self.steps = steps
         self.model_dir = model_dir
 
@@ -61,12 +62,15 @@ class TFBT(BaseEstimator, ClassifierMixin):
 
     features: Vector of features in String.
 
-    step: Number of boosting iterations.
+    steps: Number of steps for which to train and evaluate the model.
+
+    max_step: Number of total steps for which to train and evaluate the model.
 
     model_dir: If (model_dir), then at each training 
-    iteration, the algorithm will empty the checkpoint_path. 
-    This will increase your disk space during the training process.
-    If you have memory limitations, use a path.
+    iteration, the algorithm will empty the checkpoint_path 
+    after returning the accuracy.
+    It will increase your disk space during the training process.
+    If you have disk space limitations, use a path.
 
 
     '''
@@ -154,7 +158,7 @@ class BoostedTreesClassifier(TFBT):
                                                        l1_regularization=1,
                                                        l2_regularization=1)
         t0 = time.time()
-        self.est.train(train_input_fn, max_steps=None,
+        self.est.train(train_input_fn, max_steps=self.max_steps,
                        steps=self.steps)
         self.time_ = time.time() - t0
         return self
@@ -237,7 +241,8 @@ class BoostedTreesRegressor(TFBT):
                                                       learning_rate=self.learning_rate,
                                                       model_dir=self.model_dir)
         t0 = time.time()
-        self.est.train(train_input_fn, max_steps=None,
+        self.est.train(train_input_fn,
+                       max_steps=self.max_steps,
                        steps=self.steps)
         self.time_ = time.time() - t0
         return self
@@ -272,3 +277,9 @@ class BoostedTreesRegressor(TFBT):
         output_errors = np.average((y_true - pred) ** 2, axis=0)
 
         return np.sqrt(output_errors)
+
+    def export_saved_model(self, path, X):
+        export_dir = self.est.export_saved_model(
+            path, self.serving_input_receiver_fn(X))
+
+        return export_dir
