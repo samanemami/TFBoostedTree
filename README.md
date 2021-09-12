@@ -83,7 +83,9 @@ Also, by adding the path to the `model_dir` you can increase your disk space and
 <ul>
 <li>In the last update, as I need the exported models in the wrapper, I added this feature from the TensorFlow library. </li>
 <li>If you need more detail about the added method (export_saved_model), check the [reference](https://www.tensorflow.org/api_docs/python/tf/estimator/BoostedTreesClassifier). </li>
+</ul>
 
 12.sep.2021
 <ul>
 <li>Add a method to measure the training time </li>
+</ul>
