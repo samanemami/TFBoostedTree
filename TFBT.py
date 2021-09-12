@@ -203,6 +203,19 @@ class BoostedTreesClassifier(TFBT):
                           for pred in pred_dicts])
 
     def export_saved_model(self, path, X):
+        """
+        ----------
+
+        path : A path that the saved model will be saved.
+
+        X: array-like of shape (n_samples, n_features)
+        Input data.
+
+        Returns
+        -------
+        score : Saved all trained models
+        """
+
         export_dir = self.est.export_saved_model(
             path, self.serving_input_receiver_fn(X))
 
@@ -279,6 +292,19 @@ class BoostedTreesRegressor(TFBT):
         return np.sqrt(output_errors)
 
     def export_saved_model(self, path, X):
+        """
+        ----------
+
+        path : A path that the saved model will be saved.
+
+        X: array-like of shape (n_samples, n_features)
+        Input data.
+
+        Returns
+        -------
+        score : Saved all trained models
+        """
+
         export_dir = self.est.export_saved_model(
             path, self.serving_input_receiver_fn(X))
 
