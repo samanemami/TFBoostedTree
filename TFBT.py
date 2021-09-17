@@ -5,11 +5,11 @@
 # Licence: GNU Lesser General Public License v2.3.1 (LGPL-2.1)
 
 import os
-import time
 import os.path
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from time import process_time
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 
@@ -157,10 +157,10 @@ class BoostedTreesClassifier(TFBT):
                                                        model_dir=self.model_dir,
                                                        l1_regularization=1,
                                                        l2_regularization=1)
-        t0 = time.time()
+        t0 = process_time()
         self.est.train(train_input_fn, max_steps=self.max_steps,
                        steps=self.steps)
-        self.time_ = time.time() - t0
+        self.time_ = process_time() - t0
         return self
 
     def score(self, X, y):
