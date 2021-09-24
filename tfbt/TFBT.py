@@ -6,6 +6,7 @@
 
 import os
 import os.path
+import tracemalloc
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -117,8 +118,11 @@ class TFBT(BaseEstimator, ClassifierMixin):
                 tf.feature_column.make_parse_example_spec(features)))
         return serving_input_receiver_fn
 
-    def _training_time(self):
-        return self.time_
+    def _model_complexity(self):
+        '''
+            Returns the training time, and memory usage
+        '''
+        return self.time_, self.memory
 
 
 class BoostedTreesClassifier(TFBT):
@@ -157,10 +161,13 @@ class BoostedTreesClassifier(TFBT):
                                                        model_dir=self.model_dir,
                                                        l1_regularization=1,
                                                        l2_regularization=1)
+        tracemalloc.start()
         t0 = process_time()
         self.est.train(train_input_fn, max_steps=self.max_steps,
                        steps=self.steps)
         self.time_ = process_time() - t0
+        self.memory = tracemalloc.get_traced_memory()[0]
+        tracemalloc.clear_traces()
         return self
 
     def score(self, X, y):
@@ -253,11 +260,13 @@ class BoostedTreesRegressor(TFBT):
                                                       max_depth=self.max_depth,
                                                       learning_rate=self.learning_rate,
                                                       model_dir=self.model_dir)
-        t0 = time.time()
-        self.est.train(train_input_fn,
-                       max_steps=self.max_steps,
+        tracemalloc.start()
+        t0 = process_time()
+        self.est.train(train_input_fn, max_steps=self.max_steps,
                        steps=self.steps)
-        self.time_ = time.time() - t0
+        self.time_ = process_time() - t0
+        self.memory = tracemalloc.get_traced_memory()[0]
+        tracemalloc.clear_traces()
         return self
 
     def _predict(self, X, y):
