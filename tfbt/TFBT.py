@@ -13,7 +13,6 @@ import tensorflow as tf
 from time import process_time
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-
 class TFBT(BaseEstimator, ClassifierMixin):
 
     '''
